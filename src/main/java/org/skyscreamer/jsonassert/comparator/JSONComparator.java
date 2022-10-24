@@ -37,6 +37,8 @@ public interface JSONComparator {
      */
     JSONCompareResult compareJSON(JSONObject expected, JSONObject actual) throws JSONException;
 
+    JSONCompareResult compareJSON(JSONObject expected, JSONObject actual, Double epsilon) throws JSONException;
+
     /**
      * Compares two {@link JSONArray}s and returns the result of the comparison in a {@link JSONCompareResult} object.
      *
@@ -59,6 +61,7 @@ public interface JSONComparator {
      */
     void compareJSON(String prefix, JSONObject expected, JSONObject actual, JSONCompareResult result) throws JSONException;
 
+    void compareJSON(String prefix, JSONObject expected, JSONObject actual, JSONCompareResult result, Double epsilon) throws JSONException;
     /**
      * Compares two {@link Object}s on the provided path represented by {@code prefix} and
      * updates the result of the comparison in the {@code result} {@link JSONCompareResult} object.
@@ -70,6 +73,8 @@ public interface JSONComparator {
      * @throws JSONException JSON parsing error
      */
     void compareValues(String prefix, Object expectedValue, Object actualValue, JSONCompareResult result) throws JSONException;
+
+    void compareValues(String prefix, Object expectedValue, Object actualValue, JSONCompareResult result, Double epsilon) throws JSONException;
 
     /**
      * Compares two {@link JSONArray}s on the provided path represented by {@code prefix} and

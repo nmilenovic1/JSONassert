@@ -43,6 +43,13 @@ public abstract class AbstractComparator implements JSONComparator {
         return result;
     }
 
+    @Override
+    public final JSONCompareResult compareJSON(JSONObject expected, JSONObject actual, Double epsilon) throws JSONException {
+        JSONCompareResult result = new JSONCompareResult();
+        compareJSON("", expected, actual, result, epsilon);
+        return result;
+    }
+
     /**
      * Compares JSONArray provided to the expected JSONArray, and returns the results of the comparison.
      *
@@ -73,6 +80,19 @@ public abstract class AbstractComparator implements JSONComparator {
             if (actual.has(key)) {
                 Object actualValue = actual.get(key);
                 compareValues(qualify(prefix, key), expectedValue, actualValue, result);
+            } else {
+                result.missing(prefix, key);
+            }
+        }
+    }
+
+    protected void checkJsonObjectKeysExpectedInActual(String prefix, JSONObject expected, JSONObject actual, JSONCompareResult result, Double epsilon) throws JSONException {
+        Set<String> expectedKeys = getKeys(expected);
+        for (String key : expectedKeys) {
+            Object expectedValue = expected.get(key);
+            if (actual.has(key)) {
+                Object actualValue = actual.get(key);
+                compareValues(qualify(prefix, key), expectedValue, actualValue, result, epsilon);
             } else {
                 result.missing(prefix, key);
             }

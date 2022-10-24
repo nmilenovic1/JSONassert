@@ -48,6 +48,17 @@ public class DefaultComparator extends AbstractComparator {
     }
 
     @Override
+    public void compareJSON(String prefix, JSONObject expected, JSONObject actual, JSONCompareResult result, Double epsilon) throws JSONException {
+        // Check that actual contains all the expected values
+        checkJsonObjectKeysExpectedInActual(prefix, expected, actual, result, epsilon);
+
+        // If strict, check for vice-versa
+        if (!mode.isExtensible()) {
+            checkJsonObjectKeysActualInExpected(prefix, expected, actual, result);
+        }
+    }
+
+    @Override
     public void compareValues(String prefix, Object expectedValue, Object actualValue, JSONCompareResult result)
             throws JSONException {
         if (expectedValue == actualValue) {
@@ -58,6 +69,26 @@ public class DefaultComparator extends AbstractComparator {
         }
         if (areNumbers(expectedValue, actualValue)) {
             if (areNotSameDoubles(expectedValue, actualValue)) {
+                result.fail(prefix, expectedValue, actualValue);
+            }
+        } else if (expectedValue.getClass().isAssignableFrom(actualValue.getClass())) {
+            if (expectedValue instanceof JSONArray) {
+                compareJSONArray(prefix, (JSONArray) expectedValue, (JSONArray) actualValue, result);
+            } else if (expectedValue instanceof JSONObject) {
+                compareJSON(prefix, (JSONObject) expectedValue, (JSONObject) actualValue, result);
+            } else if (!expectedValue.equals(actualValue)) {
+                result.fail(prefix, expectedValue, actualValue);
+            }
+        } else {
+            result.fail(prefix, expectedValue, actualValue);
+        }
+    }
+
+    @Override
+    public void compareValues(String prefix, Object expectedValue, Object actualValue, JSONCompareResult result, Double epsilon)
+            throws JSONException {
+        if (expectedValue instanceof Number && actualValue instanceof Number) {
+            if (Math.abs(((Number)expectedValue).doubleValue() - ((Number)actualValue).doubleValue()) > epsilon){
                 result.fail(prefix, expectedValue, actualValue);
             }
         } else if (expectedValue.getClass().isAssignableFrom(actualValue.getClass())) {

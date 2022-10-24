@@ -65,6 +65,27 @@ public final class JSONCompare {
         }
     }
 
+    public static JSONCompareResult tolerantCompareJSON(String expectedStr, String actualStr, JSONCompareMode mode, Double epsilon)
+            throws JSONException {
+        Object expected = JSONParser.parseJSON(expectedStr);
+        Object actual = JSONParser.parseJSON(actualStr);
+        if ((expected instanceof JSONObject) && (actual instanceof JSONObject)) {
+            return compareJSON((JSONObject) expected, (JSONObject) actual, getComparatorForMode(mode), epsilon);
+        }
+        else if ((expected instanceof JSONArray) && (actual instanceof JSONArray)) {
+            return compareJSON((JSONArray)expected, (JSONArray)actual, getComparatorForMode(mode));
+        }
+        else if (expected instanceof JSONString && actual instanceof JSONString) {
+            return compareJson((JSONString) expected, (JSONString) actual);
+        }
+        else if (expected instanceof JSONObject) {
+            return new JSONCompareResult().fail("", expected, actual);
+        }
+        else {
+            return new JSONCompareResult().fail("", expected, actual);
+        }
+    }
+
   /**
      * Compares JSON object provided to the expected JSON object using provided comparator, and returns the results of
      * the comparison.
@@ -77,6 +98,11 @@ public final class JSONCompare {
     public static JSONCompareResult compareJSON(JSONObject expected, JSONObject actual, JSONComparator comparator)
             throws JSONException {
         return comparator.compareJSON(expected, actual);
+    }
+
+    public static JSONCompareResult compareJSON(JSONObject expected, JSONObject actual, JSONComparator comparator, Double epsilon)
+            throws JSONException {
+        return comparator.compareJSON(expected, actual, epsilon);
     }
 
     /**
